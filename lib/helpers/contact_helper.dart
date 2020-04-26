@@ -75,6 +75,36 @@ class ContactHelper{
     );
   }
 
+  Future<int> updateContact(Contact contact) async {
+    Database dbContact = await db;
+    return await dbContact.update(contactTable,
+      contact.toMap(),
+      where: "$idColumn = ?",
+      whereArgs: [contact.id]);
+  }
+
+  Future<List> getAllContacts() async{
+    Database dbContact = await db;
+    List listMap = await dbContact.rawQuery("SELECT * FROM $contactTable");
+
+    List<Contact> allContacts = List();
+
+    for(Map i in listMap){
+      allContacts.add(Contact.fromMap(i));
+    }
+    return allContacts;
+  }
+
+  Future<int> getNumber() async{
+    Database dbContact = await db;
+    return Sqflite.firstIntValue(await dbContact.rawQuery("SELECT COUNT(*) FROM $contactTable"));
+  }
+
+  Future<void> close() async{
+    Database dbContact = await db;
+    dbContact.close();
+  }
+
 }
 
 
