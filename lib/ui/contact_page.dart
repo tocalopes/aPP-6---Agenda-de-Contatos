@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:agenda_contatos/helpers/contact_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ContactPage extends StatefulWidget {
   
@@ -46,7 +47,7 @@ class _ContactPageState extends State<ContactPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: (){
-        _requestPop();
+        return _requestPop();
       },
       child: Scaffold(
         appBar:AppBar(
@@ -81,6 +82,9 @@ class _ContactPageState extends State<ContactPage> {
                     ),
                   ),
                 ),
+                onTap: (){
+                  _showImageOption(context);  
+                }
               ),
               TextField(
                 controller: _nameController,
@@ -118,7 +122,7 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Future<bool> _requestPop(){
+  Future<bool> _requestPop(){    
     if(_userEdited){
       showDialog(
         context: context,
@@ -150,5 +154,52 @@ class _ContactPageState extends State<ContactPage> {
     }else{
       return Future.value(true);
     }
+  }
+
+  void  _showImageOption(context){
+    showModalBottomSheet(
+      context: context,
+      builder: (context){
+        return BottomSheet(
+          onClosing: (){},
+          builder:(context){
+            return Container(
+              padding: EdgeInsets.all(40.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  FlatButton(
+                    onPressed: (){
+                      ImagePicker.pickImage(source: ImageSource.gallery).then((file){
+                        if(file == null) return;
+                        setState(() {
+                          _editedContact.img = file.path;
+                          Navigator.pop(context);
+                        });
+                      });
+                    }, 
+                    child: Text("galeria",style:TextStyle(color: Colors.red,fontSize: 20.0)),
+                  )
+                  ,
+                    FlatButton(
+                    onPressed: (){
+                      ImagePicker.pickImage(source: ImageSource.camera).then((file){
+                        if(file == null) return;
+                        setState(() {
+                          _editedContact.img = file.path;
+                          Navigator.pop(context);
+                        });
+                      });
+                    }, 
+                    child: Text("camera",style:TextStyle(color: Colors.red,fontSize: 20.0)),
+                  )
+                ],
+              ),
+            );
+        }
+      );
+      }
+    );
   }
 }
